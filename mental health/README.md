@@ -1,44 +1,20 @@
-# mental health
+# Mental Health & Wellness Companion
 
-This template should help get you started developing with Vue 3 in Vite.
+## 👥 Team Members
+* **Name 1** – Jerry Cudia 
+* **Name 2** – Randel John Gonzales 
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 📝 Project Description
+A wellness awareness website designed to provide a digital sanctuary for users. The platform features interactive tools for mindfulness and an **AI-powered support system** that delivers empathetic, supportive messages to help users manage daily stress.
 
-## Recommended Browser Setup
+---
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+## 🗺️ Page Mapping
+| Page | Purpose | Key Feature |
+| :--- | :--- | :--- |
+| **Home** | Landing Page | Project overview and quick access dashboard. |
+| **Breathing** | Relaxation | Interactive visual guide for breathing exercises. |
+| **Wellness** | Education | Categorized cards with daily health and habit tips. |
+| **AI Support** | Assistance | Real-time chat interface for emotional support. |
