@@ -1,179 +1,211 @@
-<template>
-  <div class="ai-support-page">
-    <div class="chat-container">
-      <div class="chat-header">
-        <div class="bot-info">
-          <span class="bot-avatar">🤖</span>
-          <div>
-            <h3>Wellness AI</h3>
-            <span class="status">Online | Always here to listen</span>
-          </div>
-        </div>
-      </div>
+<script setup>
+import { ref, nextTick } from 'vue'
+import { getAiMessage } from '../services/aiSupport'
 
-      <div class="message-window" ref="messageWindow">
-        <div v-for="(msg, index) in messages" :key="index" :class="['message', msg.role]">
-          <div class="message-bubble">
-            {{ msg.text }}
-          </div>
-        </div>
-      </div>
+const mood = ref("")
+const aiMessage = ref("")
+const loading = ref(false)
 
-      <div class="chat-input-area">
-        <input 
-          v-model="userMessage" 
-          @keyup.enter="sendMessage"
-          placeholder="Type how you're feeling..." 
-          type="text"
-        />
-        <button @click="sendMessage" :disabled="!userMessage">Send</button>
-      </div>
-    </div>
-  </div>
-</template>
+const askAI = async () => {
+  if (!mood.value.trim() || loading.value) return;
+  
+  loading.value = true;
+  aiMessage.value = "";
+  
+  try {
+    const result = await getAiMessage(mood.value);
+    aiMessage.value = result;
+    mood.value = ""; 
+  } catch (err) {
+    aiMessage.value = "Connection paused. Please try again.";
+  } finally {
+    loading.value = false;
+  }
+}
 
-<script>
-export default {
-  name: 'AiSupport',
-  data() {
-    return {
-      userMessage: '',
-      messages: [
-        { role: 'bot', text: 'Hello! I am your Wellness Assistant. How are you feeling today?' }
-      ]
-    }
-  },
-  methods: {
-    sendMessage() {
-      if (!this.userMessage.trim()) return;
-      
-      // Add user message
-      this.messages.push({ role: 'user', text: this.userMessage });
-      
-      // Clear input
-      const savedMessage = this.userMessage;
-      this.userMessage = '';
-
-      // Placeholder for AI Response logic
-      setTimeout(() => {
-        this.messages.push({ 
-          role: 'bot', 
-          text: `I hear you. It sounds like you're thinking about "${savedMessage}". I'm here to support you.` 
-        });
-        this.scrollToBottom();
-      }, 1000);
-    },
-    scrollToBottom() {
-      this.$nextTick(() => {
-        const container = this.$refs.messageWindow;
-        container.scrollTop = container.scrollHeight;
-      });
-    }
+const handleKeydown = (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    askAI();
   }
 }
 </script>
 
+<template>
+  <div class="minimal-wrapper">
+    <div class="content-box">
+      <header class="header">
+        <h1 class="title">Reflect</h1>
+        <div class="status-dot" :class="{ 'is-loading': loading }"></div>
+      </header>
+
+      <main class="response-section">
+        <transition name="fade-slide" mode="out-in">
+          <div v-if="loading" class="loading-state">
+            <span class="pulse-text">Listening</span>
+          </div>
+          <div v-else-if="aiMessage" class="message-text">
+            {{ aiMessage }}
+          </div>
+          <div v-else class="placeholder-text">
+            How is your mind today?
+          </div>
+        </transition>
+      </main>
+
+      <footer class="input-section">
+        <div class="input-container">
+          <textarea
+            v-model="mood"
+            @keydown="handleKeydown"
+            class="minimal-input"
+            placeholder="Type your thought..."
+            :disabled="loading"
+            rows="1"
+          ></textarea>
+          
+          <button 
+            @click="askAI"
+            :disabled="loading || !mood.trim()"
+            class="send-trigger"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</template>
+
 <style scoped>
-.ai-support-page {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+.minimal-wrapper {
+  font-family: 'Inter', sans-serif;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #ffffff;
+  color: #1a1a1a;
 }
 
-.chat-container {
+.content-box {
   width: 100%;
-  max-width: 600px;
-  background: white;
-  height: 70vh;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  overflow: hidden;
+  max-width: 500px;
+  padding: 2rem;
 }
 
-.chat-header {
-  background: #f0f7f0;
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.bot-info {
+.header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 4rem;
 }
 
-.bot-avatar {
-  font-size: 2rem;
-  background: white;
-  padding: 8px;
+.title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #a1a1a1;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #e5e5e5;
   border-radius: 50%;
+  transition: background-color 0.5s ease;
 }
 
-.chat-header h3 { margin: 0; color: #2d5a27; }
-.status { font-size: 0.8rem; color: #666; }
+.status-dot.is-loading {
+  background-color: #1a1a1a;
+  animation: blink 1s infinite;
+}
 
-/* Message Window */
-.message-window {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
+.response-section {
+  min-height: 200px;
+  margin-bottom: 3rem;
+}
+
+.message-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  font-weight: 400;
+  color: #1a1a1a;
+  white-space: pre-wrap;
+}
+
+.placeholder-text {
+  font-size: 1.25rem;
+  color: #d4d4d4;
+  font-weight: 300;
+}
+
+.pulse-text {
+  font-size: 0.875rem;
+  color: #a1a1a1;
+  letter-spacing: 0.05em;
+}
+
+.input-container {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background-color: #fdfdfd;
+  align-items: center;
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 0.5rem;
+  transition: border-color 0.3s ease;
 }
 
-.message { display: flex; width: 100%; }
-.message.user { justify-content: flex-end; }
-.message.bot { justify-content: flex-start; }
-
-.message-bubble {
-  max-width: 80%;
-  padding: 12px 18px;
-  border-radius: 18px;
-  font-size: 0.95rem;
-  line-height: 1.4;
+.input-container:focus-within {
+  border-color: #1a1a1a;
 }
 
-.bot .message-bubble {
-  background: #f1f1f1;
-  color: #333;
-  border-bottom-left-radius: 4px;
-}
-
-.user .message-bubble {
-  background: #42b983;
-  color: white;
-  border-bottom-right-radius: 4px;
-}
-
-/* Input Area */
-.chat-input-area {
-  padding: 20px;
-  display: flex;
-  gap: 10px;
-  border-top: 1px solid #eee;
-}
-
-input {
+.minimal-input {
   flex: 1;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 25px;
-  outline: none;
-}
-
-button {
-  background: #42b983;
-  color: white;
   border: none;
-  padding: 0 20px;
-  border-radius: 25px;
-  font-weight: bold;
-  cursor: pointer;
+  outline: none;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  background: transparent;
+  color: #1a1a1a;
+  resize: none;
 }
 
-button:disabled { background: #ccc; }
+.send-trigger {
+  background: none;
+  border: none;
+  color: #1a1a1a;
+  cursor: pointer;
+  padding: 0.5rem;
+  opacity: 0.3;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.send-trigger:not(:disabled) {
+  opacity: 1;
+}
+
+.send-trigger:hover:not(:disabled) {
+  transform: translateX(3px);
+}
+
+.send-trigger svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Animations */
+.fade-slide-enter-active, .fade-slide-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-enter-from { opacity: 0; transform: translateY(10px); }
+.fade-slide-leave-to { opacity: 0; transform: translateY(-10px); }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
 </style>
