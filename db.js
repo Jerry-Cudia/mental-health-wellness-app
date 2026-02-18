@@ -3,13 +3,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const pool = mysql.createPool({
+// Change 'const pool' to 'export const db'
+export const db = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '', // Enter your MySQL password here
-  database: process.env.DB_NAME || 'mood_tracker_db',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'mental_health_db',
   waitForConnections: true,
   connectionLimit: 10
 });
-
-export default pool;
